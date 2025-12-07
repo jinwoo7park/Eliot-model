@@ -69,7 +69,6 @@ python-3.9.18
 - numpy
 - scipy
 - matplotlib
-- pandas
 - flask
 - werkzeug
 
@@ -101,3 +100,4 @@ python app.py
 - [Vercel Python 문서](https://vercel.com/docs/runtimes/python)
 - [Flask 문서](https://flask.palletsprojects.com/)
 - [프로젝트 GitHub 저장소](https://github.com/jinwoo7park/Eliot-model)
+
