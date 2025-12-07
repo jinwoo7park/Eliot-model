@@ -27,3 +27,4 @@ def fit_absorption_spectrum(filename, **kwargs):
     results = fitter.fit(filename)
     return fitter, results
 
+
