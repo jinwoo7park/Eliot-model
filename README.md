@@ -1,14 +1,14 @@
-# Elliot Fitting: Exciton Binding Energy Analysis
+# F-sum Rule Fitting Tool
 
-Absorption spectrum으로부터 f-sum rule과 Elliot theory를 사용하여 exciton binding energy를 계산하는 Python 패키지입니다.
+MATLAB 코드를 Python으로 변환한 F-sum rule fitting 도구입니다. Exciton과 band 분리 분석을 수행할 수 있습니다.
 
 ## 기능
 
-- **Elliot Theory 기반 피팅**: Absorption spectrum을 exciton과 band-to-band 전이로 분리
-- **Exciton Binding Energy 계산**: 최적화를 통해 Eb 값을 추출
-- **Baseline Subtraction**: 다양한 방법으로 baseline 제거
-- **Urbach Energy 추출**: 밴드갭 근처의 Urbach tail 분석
-- **시각화**: 피팅 결과와 exciton/band 성분을 그래프로 표시
+- F-sum rule을 사용한 2D fitting
+- Exciton과 band contribution 분리
+- Baseline subtraction (linear/power function)
+- Urbach energy 추출
+- 명령줄 인터페이스
 
 ## 설치
 
@@ -16,78 +16,104 @@ Absorption spectrum으로부터 f-sum rule과 Elliot theory를 사용하여 exci
 pip install -r requirements.txt
 ```
 
-## 사용법
+## 사용 방법
 
-### 기본 사용
+### 가장 간단한 방법 (권장)
+
+```bash
+python3 analyze.py your_data.txt
+```
+
+파일 경로만 지정하면 바로 분석합니다.
+
+옵션:
+```bash
+python3 analyze.py your_data.txt --datasets 1,2,3 --NS 20 --fitmode 2
+```
+
+**참고**: macOS에서는 `python` 대신 `python3`를 사용하세요.
+
+### Python 코드에서 직접 사용
 
 ```python
-from elliot_fitting import fit_absorption_spectrum
+from fitter import FSumFitter
 
-# 데이터 파일 로드 및 피팅
-results = fit_absorption_spectrum('data.txt')
+fitter = FSumFitter()
+results = fitter.process_file('your_data.txt')
+fitter.save_results(results)
+fitter.plot_results(results, save_path='results.pdf')
 ```
 
-### 고급 사용
+### 명령줄 인터페이스
 
-```python
-from elliot_fitting import ElliotFitter
-
-fitter = ElliotFitter(
-    start_point=[2.62, 0.050, 0.043, 37, 0.060, 0],
-    bounds=([2.54, 0.01, 0.00, 0.010, 0.000, 0],
-            [2.68, 0.2, 0.20, 1000.0, 0.999, 0]),
-    fitmode=2,
-    NS=20
-)
-
-results = fitter.fit('data.txt')
-fitter.plot_results()
-fitter.save_results('output')
+```bash
+python3 main.py data.txt
 ```
 
-## 파라미터 설명
+옵션:
+- `--deltaE`: Normalization energy offset (default: 0.2)
+- `--NS`: Baseline interpolation points (default: 20)
+- `--fitmode`: Baseline fit mode - 0=no fit, 1=linear, 2=Rayleigh scattering (E^4) (default: 2)
+- `--datasets`: Comma-separated dataset indices to fit (default: all)
+- `--no-plot`: Do not generate plots
+- `--output-dir`: Output directory (default: current directory)
 
-피팅 파라미터 (6개):
-- **Eg**: Band gap energy (eV)
-- **Eb**: Exciton binding energy (eV) - 목표값
-- **Gamma**: 선폭 (eV)
-- **ucvsq**: 전이 쌍극자 모멘트 제곱
-- **mhcnp**: 비율 파라미터
-- **q**: 차원 파라미터 (0: bulk, 0.5~0.6: quasi-2D, 1.5: QD)
-
-## 입력 데이터 형식
-
-텍스트 파일 형식:
+예시:
+```bash
+python3 main.py data.txt --NS 20 --fitmode 2 --datasets 1,2,3
 ```
-Energy(eV)  Absorption1  Absorption2  ...
-2.50        0.001       0.002        ...
-2.51        0.0015      0.0025       ...
+
+## 파일 형식
+
+입력 파일은 공백 또는 탭으로 구분된 텍스트 파일이어야 합니다:
+- 첫 번째 열: 에너지 (eV)
+- 두 번째 열 이후: 흡수 데이터 (여러 데이터셋 가능)
+
+### 예시 파일 형식
+
+```
+2.0    0.001    0.002    0.001
+2.1    0.005    0.008    0.006
+2.2    0.015    0.020    0.018
+2.3    0.035    0.045    0.040
 ...
 ```
 
-첫 번째 열은 에너지, 이후 열들은 각각의 absorption 데이터입니다.
+- 첫 번째 열: 에너지 값 (2.0, 2.1, 2.2, ...)
+- 두 번째 열: 첫 번째 데이터셋의 흡수 데이터
+- 세 번째 열: 두 번째 데이터셋의 흡수 데이터
+- 네 번째 열: 세 번째 데이터셋의 흡수 데이터
+- ...
+
+**참고**: 
+- 공백 또는 탭으로 구분
+- 주석 라인은 `#`으로 시작 가능
+- 빈 줄은 무시됨
+- 여러 데이터셋을 한 파일에 포함 가능
 
 ## 출력 파일
 
-- `*_FittedBand.dat`: Band-to-band 전이 성분
-- `*_FittedExciton.dat`: Exciton 전이 성분
-- `*_FitResult.dat`: 피팅 결과 (파라미터, R², Urbach energy 등)
-- `*.pdf`: 피팅 결과 그래프
+- `*_FittedBand.dat`: Band contribution
+- `*_FittedExciton.dat`: Exciton contribution
+- `*_FitResult.dat`: Fitting 파라미터 및 결과
+- `*.pdf`: 결과 그래프
 
-## 참고문헌
+## Fitting 파라미터
 
-- Elliot theory 기반 absorption spectrum 분석
-- f-sum rule을 사용한 exciton binding energy 계산
+- **Eg**: Band gap energy (eV)
+- **Eb**: Exciton binding energy (eV)
+- **Gamma**: Linewidth (eV)
+- **ucvsq**: Transition dipole moment squared
+- **mhcnp**: Mass parameter
+- **q**: Fractional dimension parameter
+  - 0: bulk
+  - 0.5-0.6: quasi 2D
+  - 1.5: strong QD
 
-## 라이선스
+Effective dimension: Deff = 3 - 2*q
 
-MIT License
+## 원본 MATLAB 코드
 
-## 기여
-
-이슈와 풀 리퀘스트를 환영합니다!
-
-## 저장소
-
-GitHub: [https://github.com/jinwoo7park/Eliot-model](https://github.com/jinwoo7park/Eliot-model)
-
+이 코드는 다음 MATLAB 파일들을 Python으로 변환한 것입니다:
+- `fsum2D.m`: F-sum rule fitting 함수
+- `main.m`: 메인 스크립트
