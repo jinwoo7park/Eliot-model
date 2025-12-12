@@ -720,6 +720,7 @@ class FSumFitter:
                 dynamic_rb[0] = initial_Eg + 0.5
             
             print(f'   📊 Dynamic Eg bounds: {dynamic_lb[0]:.3f} - {dynamic_rb[0]:.3f} eV (±0.4 eV from initial)')
+            print(f'   📊 Using bounds - lb: {dynamic_lb}, rb: {dynamic_rb}')
             
             # Step 2: Remove initial baseline and do preliminary fit
             initial_cleandata = raw[:, i] - baseline

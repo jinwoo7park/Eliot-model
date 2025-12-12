@@ -23,7 +23,19 @@ function App() {
     q: 0
   }
 
+  // 상한/하한 기본값
+  const defaultBounds = {
+    Eg: { lower: null, upper: null }, // 동적으로 계산됨 (initial_Eg ± 0.4 eV)
+    Eb: { lower: 0.01, upper: 0.2 },
+    Gamma: { lower: 0.0, upper: 0.2 },
+    ucvsq: { lower: 0.010, upper: 1000.0 },
+    mhcnp: { lower: 0.000, upper: 0.999 },
+    q: { lower: 0.0, upper: 1.5 }
+  }
+
   const [initialValues, setInitialValues] = useState({ ...defaultInitialValues })
+  const [bounds, setBounds] = useState({ ...defaultBounds })
+  const [showBounds, setShowBounds] = useState(false)
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0])
@@ -111,11 +123,36 @@ function App() {
     setResults(null)
 
     try {
+      // bounds에서 유효한 값들만 전송
+      const boundsToSend = {}
+      Object.keys(bounds).forEach((param) => {
+        const paramBounds = bounds[param]
+        const lower = paramBounds.lower
+        const upper = paramBounds.upper
+
+        // null이 아니고, 빈 문자열이 아니고, 숫자인 경우만 포함
+        const hasLower = lower !== null && lower !== '' && !isNaN(parseFloat(lower))
+        const hasUpper = upper !== null && upper !== '' && !isNaN(parseFloat(upper))
+
+        if (hasLower || hasUpper) {
+          boundsToSend[param] = {}
+          if (hasLower) {
+            boundsToSend[param].lower = parseFloat(lower)
+          }
+          if (hasUpper) {
+            boundsToSend[param].upper = parseFloat(upper)
+          }
+        }
+      })
+
+      console.log('Sending bounds:', boundsToSend)
+
       const response = await axios.post('/api/analyze', {
         filename: previewData.filename,
         fitmode: fitmode,
         baseline_points: selectedPoints,
-        initial_values: initialValues
+        initial_values: initialValues,
+        bounds: Object.keys(boundsToSend).length > 0 ? boundsToSend : null
       })
 
       setResults(response.data)
@@ -142,6 +179,23 @@ function App() {
 
   const resetInitialValues = () => {
     setInitialValues({ ...defaultInitialValues })
+  }
+
+  const resetBounds = () => {
+    setBounds({ ...defaultBounds })
+  }
+
+  const handleBoundChange = (param, boundType, value) => {
+    const numValue = parseFloat(value)
+    if (!isNaN(numValue) || value === '' || value === '-') {
+      setBounds({
+        ...bounds,
+        [param]: {
+          ...bounds[param],
+          [boundType]: value === '' || value === '-' ? value : numValue
+        }
+      })
+    }
   }
 
   const handleInitialValueChange = (param, value) => {
@@ -297,15 +351,26 @@ function App() {
           <div className="form-group">
             <div className="initial-values-header">
               <label htmlFor="initial-values">Initial Values (피팅 초기값)</label>
-              <button
-                type="button"
-                onClick={resetInitialValues}
-                className="btn btn-secondary"
-                style={{ padding: '6px 12px', fontSize: '0.85em' }}
-                disabled={loading}
-              >
-                기본값으로 되돌리기
-              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowBounds(!showBounds)}
+                  className="btn btn-secondary"
+                  style={{ padding: '6px 12px', fontSize: '0.85em' }}
+                  disabled={loading}
+                >
+                  {showBounds ? '상한/하한 숨기기' : '상한/하한 보기'}
+                </button>
+                <button
+                  type="button"
+                  onClick={resetInitialValues}
+                  className="btn btn-secondary"
+                  style={{ padding: '6px 12px', fontSize: '0.85em' }}
+                  disabled={loading}
+                >
+                  기본값으로 되돌리기
+                </button>
+              </div>
             </div>
             <div className="initial-values-grid">
               <div className="initial-value-item">
@@ -375,6 +440,62 @@ function App() {
                 />
               </div>
             </div>
+
+            {showBounds && (
+              <div className="bounds-section">
+                <div className="bounds-header">
+                  <h4>상한/하한 (Bounds)</h4>
+                  <button
+                    type="button"
+                    onClick={resetBounds}
+                    className="btn btn-secondary"
+                    style={{ padding: '4px 8px', fontSize: '0.8em' }}
+                    disabled={loading}
+                  >
+                    기본값으로 되돌리기
+                  </button>
+                </div>
+                <div className="bounds-grid">
+                  {Object.keys(bounds).map((param) => (
+                    <div key={param} className="bounds-item">
+                      <label className="bounds-param-label">{param}:</label>
+                      <div className="bounds-inputs">
+                        <div className="bound-input-group">
+                          <label>하한:</label>
+                          <input
+                            type="number"
+                            step="0.001"
+                            value={bounds[param].lower ?? ''}
+                            onChange={(e) => handleBoundChange(param, 'lower', e.target.value)}
+                            disabled={loading || param === 'Eg'}
+                            placeholder={param === 'Eg' ? '동적 계산' : ''}
+                            title={param === 'Eg' ? 'Eg는 동적으로 계산됩니다 (initial_Eg ± 0.4 eV)' : ''}
+                          />
+                        </div>
+                        <div className="bound-input-group">
+                          <label>상한:</label>
+                          <input
+                            type="number"
+                            step="0.001"
+                            value={bounds[param].upper ?? ''}
+                            onChange={(e) => handleBoundChange(param, 'upper', e.target.value)}
+                            disabled={loading || param === 'Eg'}
+                            placeholder={param === 'Eg' ? '동적 계산' : ''}
+                            title={param === 'Eg' ? 'Eg는 동적으로 계산됩니다 (initial_Eg ± 0.4 eV)' : ''}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {bounds.Eg.lower === null && (
+                  <p className="bounds-note">
+                    참고: Eg의 상한/하한은 동적으로 계산됩니다 (initial_Eg ± 0.4 eV).
+                    다른 파라미터의 상한/하한은 수정 가능합니다.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {error && <div className="error">{error}</div>}

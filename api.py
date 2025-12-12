@@ -40,11 +40,24 @@ class InitialValues(BaseModel):
     q: float = 0
 
 
+class Bounds(BaseModel):
+    Eg: Optional[dict] = None  # {lower: float, upper: float} 또는 None (동적 계산)
+    Eb: Optional[dict] = None
+    Gamma: Optional[dict] = None
+    ucvsq: Optional[dict] = None
+    mhcnp: Optional[dict] = None
+    q: Optional[dict] = None
+    
+    class Config:
+        extra = "allow"  # 추가 필드 허용
+
+
 class AnalyzeRequest(BaseModel):
     filename: str
     fitmode: int = 2
     baseline_points: List[float]  # [x1, x2, x3] 또는 [x1, x2] (fitmode==0일 때)
     initial_values: Optional[InitialValues] = None
+    bounds: Optional[Bounds] = None
 
 
 @app.get("/")
@@ -275,6 +288,72 @@ async def analyze_file(request: AnalyzeRequest):
                 initial_vals.mhcnp,
                 initial_vals.q
             ])
+        
+        # Bounds 설정 (사용자가 제공한 경우)
+        print(f"DEBUG: Received bounds: {request.bounds}")
+        if request.bounds:
+            bounds_data = request.bounds
+            param_order = ['Eg', 'Eb', 'Gamma', 'ucvsq', 'mhcnp', 'q']
+            
+            # 기본 bounds 복사
+            new_lb = fitter.lb.copy()
+            new_rb = fitter.rb.copy()
+            
+            print(f"DEBUG: Default bounds - lb: {new_lb}, rb: {new_rb}")
+            
+            # Pydantic 모델에서 값을 가져오기 (여러 방법 시도)
+            bounds_dict = {}
+            try:
+                # 방법 1: model_dump() (Pydantic v2)
+                if hasattr(bounds_data, 'model_dump'):
+                    bounds_dict = bounds_data.model_dump()
+                    print(f"DEBUG: Using model_dump() - {bounds_dict}")
+                # 방법 2: dict() (Pydantic v1)
+                elif hasattr(bounds_data, 'dict'):
+                    bounds_dict = bounds_data.dict()
+                    print(f"DEBUG: Using dict() - {bounds_dict}")
+                # 방법 3: 직접 속성 접근
+                else:
+                    for param in param_order:
+                        param_val = getattr(bounds_data, param, None)
+                        if param_val is not None:
+                            bounds_dict[param] = param_val
+                    print(f"DEBUG: Using direct attribute access - {bounds_dict}")
+            except Exception as e:
+                print(f"DEBUG: Error converting bounds: {e}")
+                bounds_dict = {}
+            
+            # 사용자가 제공한 bounds로 업데이트
+            for idx, param in enumerate(param_order):
+                if param == 'Eg':
+                    # Eg는 동적으로 계산되므로 건너뜀
+                    continue
+                
+                # dict에서 파라미터 bounds 가져오기
+                param_bounds = bounds_dict.get(param)
+                
+                if param_bounds and isinstance(param_bounds, dict):
+                    lower_val = param_bounds.get('lower')
+                    upper_val = param_bounds.get('upper')
+                    
+                    # None이 아니고 유효한 숫자인 경우에만 업데이트
+                    if lower_val is not None and lower_val != '':
+                        try:
+                            new_lb[idx] = float(lower_val)
+                            print(f"DEBUG: Updated {param} lower bound: {fitter.lb[idx]} -> {new_lb[idx]}")
+                        except (ValueError, TypeError) as e:
+                            print(f"DEBUG: Invalid lower bound for {param}: {lower_val}, error: {e}")
+                    
+                    if upper_val is not None and upper_val != '':
+                        try:
+                            new_rb[idx] = float(upper_val)
+                            print(f"DEBUG: Updated {param} upper bound: {fitter.rb[idx]} -> {new_rb[idx]}")
+                        except (ValueError, TypeError) as e:
+                            print(f"DEBUG: Invalid upper bound for {param}: {upper_val}, error: {e}")
+            
+            fitter.lb = new_lb
+            fitter.rb = new_rb
+            print(f"DEBUG: Final bounds after update - lb: {fitter.lb}, rb: {fitter.rb}")
         
         # 파일 분석 (클릭 좌표를 직접 사용)
         # process_file_with_points 메서드가 있으면 사용, 없으면 기본 동작
