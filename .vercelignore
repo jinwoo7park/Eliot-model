@@ -115,13 +115,13 @@ setup.py
 setup.cfg
 pyproject.toml
 
-# 프론트엔드 소스 (Python Serverless Function에는 불필요)
-src/
-public/
-index.html
-vite.config.js
-.eslintrc.cjs
-eslint.config.js
+# 프론트엔드 소스는 빌드에 필요하므로 제외하지 않음
+# src/
+# public/
+# index.html
+# vite.config.js
+# .eslintrc.cjs
+# eslint.config.js
 
 # 문서 및 최적화 가이드 (배포에 불필요)
 SERVERLESS_OPTIMIZATION.md
