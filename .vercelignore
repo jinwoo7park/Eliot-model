@@ -115,3 +115,16 @@ setup.py
 setup.cfg
 pyproject.toml
 
+# 프론트엔드 소스 (Python Serverless Function에는 불필요)
+src/
+public/
+index.html
+vite.config.js
+.eslintrc.cjs
+eslint.config.js
+
+# 문서 및 최적화 가이드 (배포에 불필요)
+SERVERLESS_OPTIMIZATION.md
+
+# 패키지 관리 파일 (Python function에는 불필요하지만 Vercel이 자동으로 처리)
+# package.json과 pnpm-lock.yaml은 Vercel이 빌드에 필요할 수 있으므로 제외하지 않음

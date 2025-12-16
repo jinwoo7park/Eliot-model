@@ -6,7 +6,8 @@
   "framework": "vite",
   "functions": {
     "api/**/*.py": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "runtime": "python3.9"
     }
   },
   "rewrites": [
