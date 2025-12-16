@@ -1,0 +1,19 @@
+[phases.setup]
+nixPkgs = ['nodejs-18_x', 'python311']
+
+[phases.install]
+cmds = [
+  'npm install -g pnpm@9.12.3',
+  'pnpm install',
+  'pnpm build',
+  'pip install -r requirements.txt'
+]
+
+[phases.build]
+cmds = [
+  'echo "Build completed"'
+]
+
+[start]
+cmd = 'python3 -m api.index'
+

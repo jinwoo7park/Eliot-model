@@ -398,6 +398,9 @@ else:
     print(f"   Working dir: {_working_dir}")
     print(f"   Base dir dist exists: {os.path.exists(os.path.join(_base_dir, 'dist'))}")
     print(f"   Working dir dist exists: {os.path.exists(os.path.join(_working_dir, 'dist'))}")
+    # 디렉토리 목록 출력
+    print(f"   Contents of base dir: {os.listdir(_base_dir) if os.path.exists(_base_dir) else 'N/A'}")
+    print(f"   Contents of working dir: {os.listdir(_working_dir) if os.path.exists(_working_dir) else 'N/A'}")
 
 # Vercel serverless function handler
 handler = Mangum(app, lifespan="off")
