@@ -1,0 +1,54 @@
+# Node.js dependencies (프론트엔드 빌드에만 필요)
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+
+# Git
+.git/
+.gitignore
+
+# 개발 및 테스트 파일
+data_testresult/
+simulation/
+example_data.txt
+example_usage.py
+analyze.py
+main.py
+CODE_EXPLANATION.md
+DEPLOYMENT.md
+DEPLOYMENT_FREE.md
+README.md
+README_WEB.md
+
+# Docker 및 배포 설정 (Vercel에서 불필요)
+Dockerfile
+docker-compose.yml
+Procfile
+railway.json
+render.yaml
+start.sh
+install-deps.sh
+wait-for-backend.js
+wait-for-backend.cjs
+
+# 빌드 산출물 (자동 생성)
+dist/
+build/
+.vercel/
+
+# 환경 파일
+.env
+.env.local
+.env.*.local
+
+# IDE 및 OS 파일
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*~
+
+# 기타
+elliot_fitting/
+
