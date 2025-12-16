@@ -21,6 +21,7 @@ import traceback
 import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
+from mangum import Mangum
 
 # Import from local module
 from .fitter import FSumFitter
@@ -28,10 +29,20 @@ from .fitter import FSumFitter
 app = FastAPI(title="Exciton Binding Energy Calculator API")
 
 # CORS 설정
-allowed_origins = os.getenv(
-    "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:5173,https://elliott-model.vercel.app"
-).split(",")
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+if allowed_origins_env:
+    allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+else:
+    # 기본값: 로컬 개발 및 Vercel 배포 URL
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://elliott-model.vercel.app"
+    ]
+    # Vercel 배포 URL 자동 감지
+    vercel_url = os.getenv("VERCEL_URL")
+    if vercel_url:
+        allowed_origins.append(f"https://{vercel_url}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -363,6 +374,9 @@ async def analyze_data(request: AnalyzeRequest):
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "mode": "serverless"}
+
+# Vercel serverless function handler
+handler = Mangum(app, lifespan="off")
 
 # Local development support
 if __name__ == "__main__":

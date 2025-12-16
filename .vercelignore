@@ -52,7 +52,66 @@ build/
 # 기타
 elliot_fitting/
 
+# Python 캐시 및 바이트코드
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
 
+# Python 빌드 및 설치 파일
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
+# Python 가상환경
+venv/
+env/
+ENV/
+.venv/
 
+# Matplotlib 캐시 및 폰트
+*.ttf
+*.otf
+.matplotlib/
+matplotlib/fontList.*
+matplotlib/tex.cache/
+
+# Scipy 테스트 데이터 (선택적)
+# scipy.io.tests/data/  # 필요시 주석 해제
+
+# Jupyter 노트북
+*.ipynb
+.ipynb_checkpoints/
+
+# 로그 파일
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 테스트 및 커버리지
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# 설정 파일 (필요시 주석 처리)
+setup.py
+setup.cfg
+pyproject.toml
 
