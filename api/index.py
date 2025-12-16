@@ -12,7 +12,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 import tempfile
 import numpy as np
@@ -86,15 +86,14 @@ class InitialValues(BaseModel):
     q: float = 0.2
 
 class Bounds(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    
     Eg: Optional[dict] = None
     Eb: Optional[dict] = None
     Gamma: Optional[dict] = None
     ucvsq: Optional[dict] = None
     mhcnp: Optional[dict] = None
     q: Optional[dict] = None
-    
-    class Config:
-        extra = "allow"
 
 class AnalyzeRequest(BaseModel):
     filename: str = "data"
