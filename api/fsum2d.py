@@ -3,7 +3,8 @@ F-sum rule 2D fitting function
 Python implementation of fsum2D.m
 """
 import numpy as np
-from scipy.integrate import trapz
+# Note: trapz was moved from scipy.integrate to numpy in newer scipy versions
+# Use np.trapz instead
 
 
 def _inv_cosh_clipped(z):
@@ -98,7 +99,7 @@ def fsum2d_slow(params, xdata, ydata):
         a2[i, :] = _inv_cosh_clipped(cosh_arg) * ((1 + b) / denominator)
     
     # Integrate along E axis (axis=0)
-    band_contribution = trapz(a2, E, axis=0)
+    band_contribution = np.trapz(a2, E, axis=0)
     
     FittedCurve = ucvsq * np.sqrt(Eb) * (band_contribution + a1)
     exciton = ucvsq * np.sqrt(Eb) * a1
