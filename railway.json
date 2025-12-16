@@ -1,10 +1,11 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS"
+    "builder": "NIXPACKS",
+    "buildCommand": "pnpm install && pnpm build && pip install -r requirements.txt"
   },
   "deploy": {
-    "startCommand": "python3 api.py",
+    "startCommand": "python3 -m api.index",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }

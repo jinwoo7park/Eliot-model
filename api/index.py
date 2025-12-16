@@ -11,6 +11,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional, List
 import tempfile
@@ -52,6 +53,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 정적 파일 서빙 (프로덕션 모드 - API 엔드포인트보다 먼저 마운트하면 안됨)
+# Railway나 일반 배포 환경에서는 프론트엔드 빌드 파일을 서빙
+# 주의: API 엔드포인트 정의 후에 마운트해야 함
+dist_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "dist")
+
 # 임시 파일 저장 디렉토리 (Vercel 환경에서는 /tmp만 쓰기 가능)
 TEMP_DIR = tempfile.mkdtemp(prefix="fsum_fitting_")
 
@@ -84,7 +90,6 @@ class AnalyzeRequest(BaseModel):
     bounds: Optional[Bounds] = None
 
 @app.get("/api")
-@app.get("/")
 async def root():
     return {"message": "Exciton Binding Energy Calculator API", "version": "1.0.0"}
 
@@ -374,6 +379,12 @@ async def analyze_data(request: AnalyzeRequest):
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "mode": "serverless"}
+
+# 정적 파일 서빙 (모든 API 엔드포인트 정의 후 마운트)
+# Railway나 일반 배포 환경에서는 프론트엔드 빌드 파일을 서빙
+if os.path.exists(dist_path):
+    app.mount("/", StaticFiles(directory=dist_path, html=True), name="static")
+    # API 엔드포인트(/api/*)가 먼저 정의되었으므로 우선순위를 가짐
 
 # Vercel serverless function handler
 handler = Mangum(app, lifespan="off")
