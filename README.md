@@ -276,6 +276,26 @@ python3 simulation/simulation.py
 - **R² > 0.95**: 좋은 피팅
 - **R² < 0.90**: 피팅 개선 필요 (baseline 선택, 범위 조정 등)
 
+## 🌐 무료 배포 가이드
+
+**완전 무료로 배포하는 방법**: [DEPLOYMENT_FREE.md](DEPLOYMENT_FREE.md) 참고
+
+### 빠른 요약
+
+1. **백엔드 배포** (무료 옵션):
+   - **Railway** (추천): 월 $5 무료 크레딧, 빠르고 안정적
+   - **Render**: 완전 무료, 15분 비활성 시 sleep
+
+2. **프론트엔드**: 이미 Vercel에 배포됨 (무료)
+
+3. **환경 변수 설정**:
+   - Vercel: `VITE_API_BASE_URL` = 백엔드 URL
+   - 백엔드: `ALLOWED_ORIGINS` = Vercel 도메인
+
+자세한 내용은 [DEPLOYMENT_FREE.md](DEPLOYMENT_FREE.md)를 참고하세요.
+
+---
+
 ## 🌐 Vercel 배포
 
 ### 환경 변수 설정
@@ -361,6 +381,7 @@ npm install -g pnpm
 
 - [CODE_EXPLANATION.md](CODE_EXPLANATION.md): 상세한 코드 설명 및 과학적 배경
 - [README_WEB.md](README_WEB.md): 웹 인터페이스 상세 가이드
+- [DEPLOYMENT_FREE.md](DEPLOYMENT_FREE.md): **무료 배포 가이드** (Railway, Render 추천)
 - [DEPLOYMENT.md](DEPLOYMENT.md): 프로덕션 배포 가이드 (Railway, Render, Vercel)
 - [simulation/README.md](simulation/README.md): 시뮬레이션 기능 설명
 
