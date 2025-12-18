@@ -31,4 +31,4 @@ COPY . .
 EXPOSE 8000 3000
 
 # 기본 명령어 (docker-compose에서 override됨)
-CMD ["python3", "api.py"]
+CMD ["python3", "-m", "api.index"]

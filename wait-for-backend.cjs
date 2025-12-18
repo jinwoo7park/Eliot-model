@@ -44,7 +44,7 @@ async function waitForBackend() {
         await new Promise(resolve => setTimeout(resolve, DELAY_MS));
       } else {
         console.error('\n❌ 백엔드 서버가 시작되지 않았습니다.');
-        console.error('백엔드 서버를 수동으로 확인하세요: python3 api.py');
+        console.error('백엔드 서버를 수동으로 확인하세요: python3 -m api.index');
         process.exit(1);
       }
     }

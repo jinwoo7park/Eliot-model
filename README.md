@@ -58,16 +58,6 @@ pnpm run dev:all
 
 브라우저에서 **http://localhost:3000** 접속하면 됩니다!
 
-### 명령줄 인터페이스
-
-```bash
-# 가장 간단한 방법
-python3 analyze.py your_data.txt
-
-# 옵션 지정
-python3 analyze.py your_data.txt --datasets 1,2,3 --NS 20 --fitmode 2
-```
-
 **참고**: macOS에서는 `python` 대신 `python3`를 사용하세요.
 
 ## 📦 설치
@@ -127,51 +117,7 @@ pnpm run dev:all
 
 자세한 내용은 [README_WEB.md](README_WEB.md)를 참고하세요.
 
-### 2. 명령줄 인터페이스
-
-#### 간단한 사용법 (`analyze.py`)
-
-```bash
-# 파일 경로만 지정 (가장 간단)
-python3 analyze.py data.txt
-
-# 옵션 지정
-python3 analyze.py data.txt --datasets 1,2,3 --NS 20 --fitmode 2
-
-# 에너지 범위 지정
-python3 analyze.py data.txt --min 2.4 --max 2.8
-
-# Bandgap-focused fitting 비활성화
-python3 analyze.py data.txt --no-auto
-```
-
-**옵션:**
-- `--datasets 1,2,3`: 분석할 데이터셋 번호 (쉼표로 구분)
-- `--NS 20`: Baseline interpolation points (기본값: 20)
-- `--fitmode 2`: Baseline fit mode
-  - `0`: Baseline 없음
-  - `1`: 선형 baseline
-  - `2`: Rayleigh scattering (E⁴) baseline (기본값)
-- `--min 2.0`: 최소 에너지 (eV)
-- `--max 3.0`: 최대 에너지 (eV)
-- `--no-auto`: Bandgap-focused fitting 비활성화 (기본값: Eg ± 0.5 eV 활성화)
-- `--choose-fitmode`: 실행 중 fitmode를 직접 선택
-
-#### 고급 사용법 (`main.py`)
-
-```bash
-python3 main.py data.txt --deltaE 0.2 --NS 20 --fitmode 2 --datasets 1,2,3
-```
-
-**옵션:**
-- `--deltaE`: Normalization energy offset (기본값: 0.2)
-- `--NS`: Baseline interpolation points (기본값: 20)
-- `--fitmode`: Baseline fit mode (0/1/2, 기본값: 2)
-- `--datasets`: 분석할 데이터셋 번호 (쉼표로 구분, 기본값: 모두)
-- `--no-plot`: 그래프 생성 안 함
-- `--output-dir`: 출력 디렉토리 (기본값: 현재 디렉토리)
-
-### 3. Python 코드에서 직접 사용
+### 2. Python 코드에서 직접 사용
 
 ```python
 from fitter import FSumFitter
@@ -189,15 +135,6 @@ fitter.save_results(results, output_dir='.')
 fitter.plot_results(results, save_path='results.pdf')
 ```
 
-### 4. 시뮬레이션
-
-주어진 파라미터로 이론적 흡수 스펙트럼을 생성합니다:
-
-```bash
-python3 simulation/simulation.py
-```
-
-대화형으로 파라미터를 입력받아 스펙트럼을 생성합니다.
 
 ## 📄 파일 형식
 
@@ -314,7 +251,7 @@ Vercel에 배포할 때는 백엔드 API 서버 URL을 환경 변수로 설정�
 
 3. **백엔드 배포:**
    - FastAPI 백엔드는 별도로 배포해야 합니다 (Railway, Render, Heroku 등)
-   - CORS 설정이 올바른지 확인 (`api.py`에서 이미 설정됨)
+   - CORS 설정이 올바른지 확인 (`api/index.py`에서 이미 설정됨)
 
 ### 배포 후 확인사항
 
@@ -381,9 +318,7 @@ npm install -g pnpm
 
 - [CODE_EXPLANATION.md](CODE_EXPLANATION.md): 상세한 코드 설명 및 과학적 배경
 - [README_WEB.md](README_WEB.md): 웹 인터페이스 상세 가이드
-- [DEPLOYMENT_FREE.md](DEPLOYMENT_FREE.md): **무료 배포 가이드** (Railway, Render 추천)
-- [DEPLOYMENT.md](DEPLOYMENT.md): 프로덕션 배포 가이드 (Railway, Render, Vercel)
-- [simulation/README.md](simulation/README.md): 시뮬레이션 기능 설명
+- [DEPLOYMENT.md](DEPLOYMENT.md): 배포 가이드 (Railway, Render, Vercel)
 
 ## 📖 참고 문헌
 
@@ -395,12 +330,10 @@ npm install -g pnpm
 
 ```
 .
-├── analyze.py              # 간편 분석 스크립트
-├── main.py                 # 명령줄 인터페이스
-├── api.py                  # FastAPI 백엔드 서버
-├── fitter.py               # 피팅 메인 모듈
-├── fsum2d.py              # F-sum rule 계산 모듈
-├── simulation/            # 시뮬레이션 모듈
+├── api/                    # API 모듈
+│   ├── index.py           # FastAPI 백엔드 서버
+│   ├── fitter.py          # 피팅 메인 모듈
+│   └── fsum2d.py          # F-sum rule 계산 모듈
 ├── src/                   # React 프론트엔드
 ├── requirements.txt       # Python 의존성
 ├── package.json          # Node.js 의존성

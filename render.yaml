@@ -3,7 +3,7 @@ services:
     name: exciton-binding-energy-api
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python3 api.py
+    startCommand: python3 -m api.index
     envVars:
       - key: ALLOWED_ORIGINS
         value: https://elliott-model.vercel.app,http://localhost:3000,http://localhost:5173

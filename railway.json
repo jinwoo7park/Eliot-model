@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "pnpm install && pnpm build && pip install -r requirements.txt"
+    "buildCommand": "pnpm install --prod=false && pnpm build && pip install -r requirements.txt"
   },
   "deploy": {
     "startCommand": "python3 -m api.index",

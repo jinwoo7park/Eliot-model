@@ -74,7 +74,7 @@ pnpm run dev:all
 
 **백엔드만 실행:**
 ```bash
-python3 api.py
+python3 -m api.index
 ```
 
 **프론트엔드만 실행:**

@@ -40,9 +40,7 @@ Thumbs.db
 
 # Project specific
 *.pdf
-data_testresult/*.csv
-data_testresult/*.dat
-data_testresult/*.pdf
+data_testresult/
 
 # Node
 node_modules/

@@ -4,14 +4,15 @@ nixPkgs = ['nodejs-18_x', 'python311']
 [phases.install]
 cmds = [
   'npm install -g pnpm@9.12.3',
-  'pnpm install',
+  'pnpm install --prod=false',
   'pip install -r requirements.txt'
 ]
 
 [phases.build]
 cmds = [
   'pnpm build',
-  'ls -la dist/ || echo "Dist folder not found after build"'
+  'ls -la dist/ || echo "Dist folder not found after build"',
+  'echo "Frontend build completed. Static files will be served by Python backend."'
 ]
 
 [start]
